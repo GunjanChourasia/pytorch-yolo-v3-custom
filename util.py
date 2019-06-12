@@ -40,7 +40,7 @@ def predict_transform(prediction, inp_dim, anchors, num_classes, train=False, he
     num_anchors = len(anchors)
     h = prediction.size(2)
     w = prediction.size(3)
-    
+    print ("input_dim",inp_dim,batch_size,prediction.size(2),grid_size,bbox_attrs,num_anchors)
     anchors = [(a[0]/stride, a[1]/stride) for a in anchors]
 
     # prediction = prediction.view(int(batch_size*num_anchors), 

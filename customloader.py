@@ -240,9 +240,11 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         example = self.examples[idx]
-
+        example = 'data_output/'+example
         path = os.path.join(os.getcwd(), example).rstrip()
-        image = cv2.imread(path)[:,:,::-1]   #Load the image from opencv and convert to RGB
+        print (path)
+        image = cv2.imread(path)
+        image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)   #Load the image from opencv and convert to RGB
 
         label_table = np.zeros((sum(self.num_pred_boxes), 6), dtype=np.float)
         label_table = self.get_pred_box_cords(label_table)

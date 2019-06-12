@@ -15,7 +15,8 @@ import random
 import pickle as pkl
 import argparse
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print (device,"device")
 
 def get_test_input(input_dim):
     img = cv2.imread("dog-cycle-car.png")
@@ -89,7 +90,7 @@ def arg_parse():
                         default="cfg/yolov3.cfg", type = str)
     parser.add_argument("--weights", dest='weightsfile', help = 
                         "weightsfile",
-                        default="yolov3.weights", type = str)
+                        default="yolov3-tiny.weights", type = str)
     parser.add_argument("--datacfg", dest="datafile", help="cfg file containing the configuration for the dataset",
                         type = str, default="cfg/coco.data")
     parser.add_argument("--reso", dest='reso', help = 
@@ -106,6 +107,7 @@ if __name__ == '__main__':
         
     print("Loading network.....")
     model = Darknet(cfgfile=args.cfgfile, train=False)
+    #model.cuda()
     model.load_state_dict(torch.load(args.weightsfile))
     print("Network successfully loaded")
 
@@ -138,7 +140,11 @@ if __name__ == '__main__':
             im_dim = torch.FloatTensor(dim).repeat(1,2)
 
             model = model.to(device)
+            #model= model.to(torch.device("cuda"))
+            #img=img.to(torch.device("cuda"))
+            img=img.to(device)
             output = model(img)
+            output=output.to(torch.device("cuda"))
             output = write_results(output, confidence, num_classes, nms=True, nms_conf=nms_thesh)
 
             if type(output) == int:
@@ -152,7 +158,8 @@ if __name__ == '__main__':
 
             im_dim = im_dim.repeat(output.size(0), 1)
             scaling_factor = torch.min(inp_dim/im_dim,1)[0].view(-1,1)
-            
+            #output=output.to(torch.device("cuda"))
+            scaling_factor=scaling_factor.to(device)
             output[:,[1,3]] -= (inp_dim - scaling_factor*im_dim[:,0].view(-1,1))/2
             output[:,[2,4]] -= (inp_dim - scaling_factor*im_dim[:,1].view(-1,1))/2
             

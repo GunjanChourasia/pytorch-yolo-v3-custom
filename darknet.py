@@ -22,7 +22,8 @@ class test_net(nn.Module):
     
     def forward(self, x):
         x = x.view(-1)
-        fwd = nn.Sequential(self.linear_1, *self.middle, self.output)
+        mid=self.middle
+        fwd = nn.Sequential(self.linear_1, *(mid), self.output)
         return fwd(x)
         
 def get_test_input():
@@ -91,6 +92,7 @@ class DetectionLayer(nn.Module):
     def forward(self, x, inp_dim, num_classes, confidence):
         x = x.data
         prediction = x
+        print ("888888888888888",inp_dim)
         prediction = predict_transform(prediction, inp_dim, self.anchors, num_classes, confidence)
         return prediction
 
@@ -386,7 +388,7 @@ class Darknet(nn.Module):
                 #Output the result
                 if not self.training:
                     x = x.data
-                
+                print ("***********",num_classes,anchors)
                 x = predict_transform(x, inp_dim, anchors, num_classes, train=self.training)
                 
                 if type(x) == int:
@@ -418,7 +420,14 @@ class Darknet(nn.Module):
         # 2. Minor Version Number
         # 3. Subversion number 
         # 4. IMages seen 
-        header = np.fromfile(fp, dtype = np.int32, count = 5)
+        #header = np.fromfile(fp, dtype = np.int32, count = 4)
+        header = np.fromfile(fp, dtype = np.int32, count = 4)        
+        '''if (header[0]*10+header[1] >=2) and (header[0] < 1000) and (header[1] < 1000):
+            sub_header = np.fromfile(fp, dtype = np.int32, count = 2)
+        else:
+            sub_header = np.fromfile(fp, dtype = np.int32, count = 1)
+    
+        header = np.append(header,sub_header)'''
         self.header = torch.from_numpy(header)
         self.seen = self.header[3]
         
@@ -495,7 +504,6 @@ class Darknet(nn.Module):
                 #Do the same as above for weights
                 conv_weights = torch.from_numpy(weights[ptr:ptr+num_weights])
                 ptr = ptr + num_weights
-
                 conv_weights = conv_weights.view_as(conv.weight.data)
                 conv.weight.data.copy_(conv_weights)
                 

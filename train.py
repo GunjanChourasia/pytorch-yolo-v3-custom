@@ -41,10 +41,10 @@ def arg_parse():
     parser = argparse.ArgumentParser(description='YOLO v3 Training Module')
     parser.add_argument("--cfg", dest = 'cfgfile', help =
                         "Config file",
-                        default = "cfg/yolov3.cfg", type = str)
+                        default = "cfg/yolov3-tiny.cfg", type = str)
     parser.add_argument("--weights", dest = 'weightsfile', help =
                         "weightsfile",
-                        default = "yolov3.weights", type = str)
+                        default = "yolov3-tiny.weights", type = str)
     parser.add_argument("--datacfg", dest = "datafile", help = "cfg file containing the configuration for the dataset",
                         type = str, default = "cfg/data.data")
     parser.add_argument("--lr", dest = "lr", type = float, default = 0.001)
@@ -123,9 +123,10 @@ custom_transforms = Sequence([YoloResizeTransform(inp_dim)])
 
 # Data instance and loader
 data = CustomDataset(root="data", num_classes=num_classes, 
-                     ann_file="data/train.txt", 
+                     ann_file="/home/gunjan/Desktop/Humanoid/pytorch-yolo-v3-custom/data_output/data/train.txt", 
                      det_transforms=custom_transforms)
 print('Batch size ', bs)
+print (data)
 data_loader = DataLoader(data, 
                          batch_size=bs,
                          shuffle=False,
@@ -312,8 +313,10 @@ optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay
 print('Batch size ', bs)
 # Data instance and loader
 data = CustomDataset(root="data", num_classes=num_classes, 
-                     ann_file="data/train.txt", 
+                     ann_file="/home/gunjan/Desktop/Humanoid/pytorch-yolo-v3-custom/data_output/data/train.txt", 
                      det_transforms=custom_transforms)
+print ("*************************")
+print (data,)
 data_loader = DataLoader(data, batch_size=bs,
                          shuffle=False,
                          collate_fn=data.collate_fn)
