@@ -92,7 +92,6 @@ class DetectionLayer(nn.Module):
     def forward(self, x, inp_dim, num_classes, confidence):
         x = x.data
         prediction = x
-        print ("888888888888888",inp_dim)
         prediction = predict_transform(prediction, inp_dim, self.anchors, num_classes, confidence)
         return prediction
 
@@ -388,7 +387,6 @@ class Darknet(nn.Module):
                 #Output the result
                 if not self.training:
                     x = x.data
-                print ("***********",num_classes,anchors)
                 x = predict_transform(x, inp_dim, anchors, num_classes, train=self.training)
                 
                 if type(x) == int:

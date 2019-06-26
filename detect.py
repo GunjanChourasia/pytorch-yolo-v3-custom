@@ -93,7 +93,7 @@ if __name__ ==  '__main__':
     device = torch.device("cuda:0" if CUDA else "cpu")
 
     num_classes = 80
-    classes = load_classes('data/coco.names') 
+    classes = load_classes('data/obj.names') 
 
     #Set up the neural network
     print("Loading network.....")

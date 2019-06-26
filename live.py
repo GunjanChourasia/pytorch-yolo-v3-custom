@@ -66,14 +66,17 @@ def write(x, img):
         # needs to be bottom, right
         c2 = tuple(x[3:5].int())
         label = int(x[0])
-        label="{0}".format(classes[label])
-        color = random.choice(colors)
-        # need top-left corner and bottom-right corner of rectangle to draw
-        cv2.rectangle(img, c1, c2, color, 1)
-        t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
-        c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
-        cv2.rectangle(img, c1, c2, color, -1)
-        cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+        try:
+            label="{0}".format(classes[label])
+            color = random.choice(colors)
+            # need top-left corner and bottom-right corner of rectangle to draw
+            cv2.rectangle(img, c1, c2, color, 1)
+            t_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_PLAIN, 1 , 1)[0]
+            c2 = c1[0] + t_size[0] + 3, c1[1] + t_size[1] + 4
+            cv2.rectangle(img, c1, c2, color, -1)
+            cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
+        except(IndexError):
+            pass
     return img
 
 def arg_parse():
@@ -107,7 +110,6 @@ if __name__ == '__main__':
         
     print("Loading network.....")
     model = Darknet(cfgfile=args.cfgfile, train=False)
-    #model.cuda()
     model.load_state_dict(torch.load(args.weightsfile))
     print("Network successfully loaded")
 
@@ -137,11 +139,9 @@ if __name__ == '__main__':
         if ret:
             
             img, orig_im, dim = prep_image(frame, inp_dim)
-            im_dim = torch.FloatTensor(dim).repeat(1,2)
+            im_dim = torch.torch.cuda.FloatTensor(dim).repeat(1,2)
 
             model = model.to(device)
-            #model= model.to(torch.device("cuda"))
-            #img=img.to(torch.device("cuda"))
             img=img.to(device)
             output = model(img)
             output=output.to(torch.device("cuda"))
@@ -158,8 +158,6 @@ if __name__ == '__main__':
 
             im_dim = im_dim.repeat(output.size(0), 1)
             scaling_factor = torch.min(inp_dim/im_dim,1)[0].view(-1,1)
-            #output=output.to(torch.device("cuda"))
-            scaling_factor=scaling_factor.to(device)
             output[:,[1,3]] -= (inp_dim - scaling_factor*im_dim[:,0].view(-1,1))/2
             output[:,[2,4]] -= (inp_dim - scaling_factor*im_dim[:,1].view(-1,1))/2
             
@@ -170,6 +168,7 @@ if __name__ == '__main__':
                 output[i, [2,4]] = torch.clamp(output[i, [2,4]], 0.0, im_dim[i,1])
             
             classes = load_classes('data/obj.names')
+            print (classes,"classes")
             colors = pkl.load(open("pallete", "rb"))
             
             list(map(lambda x: write(x, orig_im), output))

@@ -126,7 +126,6 @@ data = CustomDataset(root="data", num_classes=num_classes,
                      ann_file="/home/gunjan/Desktop/Humanoid/pytorch-yolo-v3-custom/data_output/data/train.txt", 
                      det_transforms=custom_transforms)
 print('Batch size ', bs)
-print (data)
 data_loader = DataLoader(data, 
                          batch_size=bs,
                          shuffle=False,
